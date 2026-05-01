@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Expression as Raw;
 use Laracache\Cache\Query\Builder;
 use Laracache\Cache\Query\Grammars\Grammar;
@@ -9,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class CacheQueryBuilderTest extends TestCase
 {
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         m::close();
     }
@@ -20,13 +21,13 @@ class CacheQueryBuilderTest extends TestCase
         $processor = m::mock(Processor::class);
 
         return new Builder(
-            m::mock(Illuminate\Database\ConnectionInterface::class),
+            m::mock(ConnectionInterface::class),
             $grammar,
             $processor
         );
     }
 
-    public function testBasicSelect()
+    public function test_basic_select()
     {
         $builder = $this->getBuilder();
 
@@ -34,7 +35,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select * from users', $builder->toSql());
     }
 
-    public function testBasicSelectWithReservedWords()
+    public function test_basic_select_with_reserved_words()
     {
         $builder = $this->getBuilder();
 
@@ -42,7 +43,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select exists, drop, group from users', $builder->toSql());
     }
 
-    public function testAddingSelects()
+    public function test_adding_selects()
     {
         $builder = $this->getBuilder();
 
@@ -57,7 +58,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testBasicSelectDistinct()
+    public function test_basic_select_distinct()
     {
         $builder = $this->getBuilder();
 
@@ -66,7 +67,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select distinct foo, bar from users', $builder->toSql());
     }
 
-    public function testBasicAlias()
+    public function test_basic_alias()
     {
         $builder = $this->getBuilder();
 
@@ -75,7 +76,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select foo as bar from users', $builder->toSql());
     }
 
-    public function testBasicSchemaWrapping()
+    public function test_basic_schema_wrapping()
     {
         $builder = $this->getBuilder();
 
@@ -84,7 +85,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select * from acme.users', $builder->toSql());
     }
 
-    public function testBasicSchemaWrappingReservedWords()
+    public function test_basic_schema_wrapping_reserved_words()
     {
         $builder = $this->getBuilder();
 
@@ -93,7 +94,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select * from schema.users', $builder->toSql());
     }
 
-    public function testBasicColumnWrappingReservedWords()
+    public function test_basic_column_wrapping_reserved_words()
     {
         $builder = $this->getBuilder();
 
@@ -102,7 +103,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select order from users', $builder->toSql());
     }
 
-    public function testBasicWheres()
+    public function test_basic_wheres()
     {
         $builder = $this->getBuilder();
 
@@ -112,7 +113,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1], $builder->getBindings());
     }
 
-    public function testBasicWheresWithReservedWords()
+    public function test_basic_wheres_with_reserved_words()
     {
         $builder = $this->getBuilder();
 
@@ -122,7 +123,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1], $builder->getBindings());
     }
 
-    public function testWhereBetween()
+    public function test_where_between()
     {
         $builder = $this->getBuilder();
 
@@ -144,7 +145,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2], $builder->getBindings());
     }
 
-    public function testBasicOrWheres()
+    public function test_basic_or_wheres()
     {
         $builder = $this->getBuilder();
 
@@ -160,7 +161,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 'foo'], $builder->getBindings());
     }
 
-    public function testRawWheres()
+    public function test_raw_wheres()
     {
         $builder = $this->getBuilder();
 
@@ -175,7 +176,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 'foo'], $builder->getBindings());
     }
 
-    public function testRawOrWheres()
+    public function test_raw_or_wheres()
     {
         $builder = $this->getBuilder();
 
@@ -191,7 +192,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 'foo'], $builder->getBindings());
     }
 
-    public function testBasicWhereIns()
+    public function test_basic_where_ins()
     {
         $builder = $this->getBuilder();
 
@@ -219,7 +220,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 1, 2 => 2, 3 => 3], $builder->getBindings());
     }
 
-    public function testBasicWhereNotIns()
+    public function test_basic_where_not_ins()
     {
         $builder = $this->getBuilder();
 
@@ -247,7 +248,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 1, 2 => 2, 3 => 3], $builder->getBindings());
     }
 
-    public function testUnions()
+    public function test_unions()
     {
         $builder = $this->getBuilder();
 
@@ -266,7 +267,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2], $builder->getBindings());
     }
 
-    public function testUnionsWithCustomSelect()
+    public function test_unions_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -285,7 +286,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2], $builder->getBindings());
     }
 
-    public function testUnionAlls()
+    public function test_union_alls()
     {
         $builder = $this->getBuilder();
 
@@ -304,7 +305,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2], $builder->getBindings());
     }
 
-    public function testUnionAllsWithCustomSelect()
+    public function test_union_alls_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -323,7 +324,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2], $builder->getBindings());
     }
 
-    public function testMultipleUnions()
+    public function test_multiple_unions()
     {
         $builder = $this->getBuilder();
 
@@ -344,7 +345,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2, 2 => 3], $builder->getBindings());
     }
 
-    public function testMultipleUnionsWithCustomSelect()
+    public function test_multiple_unions_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -365,7 +366,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2, 2 => 3], $builder->getBindings());
     }
 
-    public function testMultipleUnionAlls()
+    public function test_multiple_union_alls()
     {
         $builder = $this->getBuilder();
 
@@ -385,7 +386,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2, 2 => 3], $builder->getBindings());
     }
 
-    public function testMultipleUnionAllsWithCustomSelect()
+    public function test_multiple_union_alls_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -405,7 +406,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 2, 2 => 3], $builder->getBindings());
     }
 
-    public function testSubSelectWhereIns()
+    public function test_sub_select_where_ins()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()->shouldReceive('getDatabaseName')->andReturn('');
@@ -436,7 +437,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([25], $builder->getBindings());
     }
 
-    public function testBasicWhereNulls()
+    public function test_basic_where_nulls()
     {
         $builder = $this->getBuilder();
         $builder->select('*')->from('users')->whereNull('id');
@@ -457,7 +458,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1], $builder->getBindings());
     }
 
-    public function testBasicWhereNotNulls()
+    public function test_basic_where_not_nulls()
     {
         $builder = $this->getBuilder();
         $builder->select('*')->from('users')->whereNotNull('id');
@@ -481,7 +482,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1], $builder->getBindings());
     }
 
-    public function testGroupBys()
+    public function test_group_bys()
     {
         $builder = $this->getBuilder();
         $builder->select('*')->from('users')->groupBy('id', 'email');
@@ -489,7 +490,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select * from users group by id, email', $builder->toSql());
     }
 
-    public function testOrderBys()
+    public function test_order_bys()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -515,7 +516,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(['bar'], $builder->getBindings());
     }
 
-    public function testHavings()
+    public function test_havings()
     {
         $builder = $this->getBuilder();
         $builder->select('*')->from('users')->having('email', '>', 1);
@@ -547,7 +548,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testRawHavings()
+    public function test_raw_havings()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -571,7 +572,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testOffset()
+    public function test_offset()
     {
         $builder = $this->getBuilder();
 
@@ -583,7 +584,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testOffsetAndOrderByTakeOffset()
+    public function test_offset_and_order_by_take_offset()
     {
         $builder = $this->getBuilder();
 
@@ -595,7 +596,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testOffsetWithCustomSelect()
+    public function test_offset_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -607,7 +608,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testLimitsAndOffsets()
+    public function test_limits_and_offsets()
     {
         $builder = $this->getBuilder();
 
@@ -652,7 +653,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testLimitsAndOffsetsWithCustomSelect()
+    public function test_limits_and_offsets_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -664,7 +665,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testLimitAndOffsetToPaginateOne()
+    public function test_limit_and_offset_to_paginate_one()
     {
         $builder = $this->getBuilder();
 
@@ -685,7 +686,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testLimitAndOffsetToPaginateOneWithCustomSelect()
+    public function test_limit_and_offset_to_paginate_one_with_custom_select()
     {
         $builder = $this->getBuilder();
 
@@ -706,7 +707,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testWhereShortcut()
+    public function test_where_shortcut()
     {
         $builder = $this->getBuilder();
         $builder->select('*')->from('users')->where('id', 1)->orWhere('name', 'foo');
@@ -718,7 +719,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 1, 1 => 'foo'], $builder->getBindings());
     }
 
-    public function testNestedWheres()
+    public function test_nested_wheres()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -739,7 +740,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testFullSubSelects()
+    public function test_full_sub_selects()
     {
         $builder = $this->getBuilder();
         $builder
@@ -758,7 +759,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([0 => 'foo', 1 => 'bar'], $builder->getBindings());
     }
 
-    public function testWhereExists()
+    public function test_where_exists()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -814,7 +815,7 @@ class CacheQueryBuilderTest extends TestCase
         );
     }
 
-    public function testBasicJoins()
+    public function test_basic_joins()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -840,7 +841,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(['bar', 'foo'], $builder->getBindings());
     }
 
-    public function testComplexJoin()
+    public function test_complex_join()
     {
         $builder = $this->getBuilder();
         $builder->select('*')
@@ -869,7 +870,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(['foo', 'bar'], $builder->getBindings());
     }
 
-    public function testRawExpressionsInSelect()
+    public function test_raw_expressions_in_select()
     {
         $builder = $this->getBuilder();
         $builder->select(new Raw('substr(foo, 6)'))->from('users');
@@ -877,7 +878,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select substr(foo, 6) from users', $builder->toSql());
     }
 
-    public function testListMethodsGetsArrayOfColumnValues()
+    public function test_list_methods_gets_array_of_column_values()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -919,7 +920,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals([1 => 'bar', 10 => 'baz'], $results->all());
     }
 
-    public function testImplode()
+    public function test_implode()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -964,13 +965,13 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('bar,baz', $results);
     }
 
-    public function testAggregateCountFunction()
+    public function test_aggregate_count_function()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
             ->shouldReceive('select')
             ->once()
-            ->with('select count(*) as aggregate from users', [], true)
+            ->with('select count(*) as aggregate from users', [], true, [])
             ->andReturn([['aggregate' => 1]]);
 
         $builder->getProcessor()
@@ -985,13 +986,13 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $results);
     }
 
-    public function testAggregateMaxFunction()
+    public function test_aggregate_max_function()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
             ->shouldReceive('select')
             ->once()
-            ->with('select max(id) as aggregate from users', [], true)
+            ->with('select max(id) as aggregate from users', [], true, [])
             ->andReturn([['aggregate' => 1]]);
 
         $builder->getProcessor()
@@ -1006,13 +1007,13 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $results);
     }
 
-    public function testAggregateMinFunction()
+    public function test_aggregate_min_function()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
             ->shouldReceive('select')
             ->once()
-            ->with('select min(id) as aggregate from users', [], true)
+            ->with('select min(id) as aggregate from users', [], true, [])
             ->andReturn([['aggregate' => 1]]);
 
         $builder->getProcessor()
@@ -1027,13 +1028,13 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $results);
     }
 
-    public function testAggregateSumFunction()
+    public function test_aggregate_sum_function()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
             ->shouldReceive('select')
             ->once()
-            ->with('select sum(id) as aggregate from users', [], true)
+            ->with('select sum(id) as aggregate from users', [], true, [])
             ->andReturn([['aggregate' => 1]]);
 
         $builder->getProcessor()
@@ -1048,7 +1049,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $results);
     }
 
-    public function testInsertMethod()
+    public function test_insert_method()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -1062,7 +1063,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testInsertMethodRespectsRawBindings()
+    public function test_insert_method_respects_raw_bindings()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -1077,7 +1078,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testUpdateMethod()
+    public function test_update_method()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -1093,7 +1094,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $result);
     }
 
-    public function testUpdateMethodRespectsRaw()
+    public function test_update_method_respects_raw()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -1110,7 +1111,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $result);
     }
 
-    public function testDeleteMethod()
+    public function test_delete_method()
     {
         $builder = $this->getBuilder();
         $builder->getConnection()
@@ -1135,7 +1136,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(1, $result);
     }
 
-    public function testMergeWheresCanMergeWheresAndBindings()
+    public function test_merge_wheres_can_merge_wheres_and_bindings()
     {
         $builder = $this->getBuilder();
         $builder->wheres = ['foo'];
@@ -1146,7 +1147,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals(['foo', 'bar'], $builder->getBindings());
     }
 
-    public function testProvidingNullOrFalseAsSecondParameterBuildsCorrectly()
+    public function test_providing_null_or_false_as_second_parameter_builds_correctly()
     {
         $builder = $this->getBuilder();
 
@@ -1155,7 +1156,7 @@ class CacheQueryBuilderTest extends TestCase
         $this->assertEquals('select * from users where foo is null', $builder->toSql());
     }
 
-    public function testDynamicWhere()
+    public function test_dynamic_where()
     {
         $method = 'whereFooBarAndBazOrQux';
         $parameters = ['corge', 'waldo', 'fred'];
@@ -1175,7 +1176,7 @@ class CacheQueryBuilderTest extends TestCase
 
     protected function getConnection()
     {
-        $connection =  m::mock('Illuminate\Database\Connection');
+        $connection = m::mock('Illuminate\Database\Connection');
 
         $connection->shouldReceive('getSchemaGrammar')->andReturn(new Grammar($connection));
         $connection->shouldReceive('getSchemaBuilder')->andReturn(Builder::class);

@@ -12,7 +12,7 @@ class Builder extends IlluminateBuilder
     {
         parent::__construct($connection);
 
-        if (!$this->grammar) {
+        if (! $this->grammar) {
             $this->grammar = $connection->getDefaultSchemaGrammar();
         }
     }
@@ -36,7 +36,7 @@ class Builder extends IlluminateBuilder
 
             $this->connection
                 ->getPdo()
-                ->exec(DB::raw('drop table '.$tableName));
+                ->exec('drop table '.$tableName);
         }
 
         $this->connection->getPdo()->commit();
