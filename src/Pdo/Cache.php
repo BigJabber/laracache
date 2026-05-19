@@ -36,10 +36,9 @@ class Cache
     /**
      * Creates a PDO instance representing a connection to a database.
      *
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array  $options
+     * @param  string  $dsn
+     * @param  string  $username
+     * @param  string  $password
      */
     public function __construct($dsn, $username, $password, array $options = [])
     {
@@ -51,9 +50,8 @@ class Cache
     /**
      * Prepares a statement for execution and returns a statement object.
      *
-     * @param string $statement
-     * @param array  $options
-     *
+     * @param  string  $statement
+     * @param  array  $options
      * @return Statement
      */
     public function prepare($statement, $options = null): PDOStatement|false
@@ -62,7 +60,7 @@ class Cache
             ? $this->options
             : $options;
 
-        if (!\is_array($options)) {
+        if (! \is_array($options)) {
             $options = [];
         }
 
@@ -73,8 +71,6 @@ class Cache
      * Executes an SQL statement.
      *
      * @param string
-     *
-     * @return int
      */
     public function exec($statement): int
     {
@@ -83,8 +79,6 @@ class Cache
 
     /**
      * Initiates a transaction.
-     *
-     * @return bool
      */
     public function beginTransaction(): bool
     {
@@ -95,30 +89,26 @@ class Cache
 
     /**
      * Commits a transaction.
-     *
-     * @return bool
      */
     public function commit(): bool
     {
         $this->exec('COMMIT');
         $this->setAutoCommit(true);
 
-        return (!\odbc_error($this->dbh))
+        return (! \odbc_error($this->dbh))
             ? @\odbc_commit($this->dbh)
             : $this->rollBack();
     }
 
     /**
      * Rolls back a transaction.
-     *
-     * @return bool
      */
     public function rollBack(): bool
     {
         $this->exec('ROLLBACK');
         $status = @\odbc_rollback($this->dbh);
 
-        if (!$status) {
+        if (! $status) {
             if (\odbc_error($this->dbh)) {
                 $this->throwException();
             }
@@ -129,8 +119,6 @@ class Cache
 
     /**
      * Checks if inside a transaction.
-     *
-     * @return bool
      */
     public function inTransaction(): bool
     {
@@ -157,7 +145,7 @@ class Cache
             ? @\odbc_pconnect($dsn, $username, $password)
             : @\odbc_connect($dsn, $username, $password);
 
-        if (!$this->dbh) {
+        if (! $this->dbh) {
             $this->throwException();
         }
     }
@@ -168,7 +156,7 @@ class Cache
     private function setAutoCommit($boolean = true): bool
     {
         @\odbc_autocommit($this->dbh, $boolean);
-        $this->inTransaction = !$boolean;
+        $this->inTransaction = ! $boolean;
 
         return $boolean;
     }
@@ -178,7 +166,11 @@ class Cache
      */
     public function quote(string $string, int $type = PDO::PARAM_STR): string|false
     {
-        return $string;
+        if ($type === PDO::PARAM_INT) {
+            return $string;
+        }
+
+        return "'".str_replace("'", "''", $string)."'";
     }
 
     /**

@@ -178,6 +178,10 @@ class Statement extends PDOStatement
      */
     public function bindValue($parameter, $value, $dataType = null): bool
     {
+        if (is_string($value)) {
+            $value = "'".str_replace("'", "''", $value)."'";
+        }
+
         $this->parameters[$parameter] = $value;
 
         return true;
